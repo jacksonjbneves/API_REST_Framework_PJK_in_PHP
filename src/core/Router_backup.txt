@@ -1,0 +1,50 @@
+<?php
+namespace core;
+
+class Router {
+    private array $routes = [];
+
+    public function get(string $path, string $controllerAction): void {
+        $this->routes['GET'][$path] = $controllerAction;
+    }
+
+    public function post(string $path, string $controllerAction): void {
+        $this->routes['POST'][$path] = $controllerAction;
+    }
+
+    public function SeeRoutesSave(): array{
+        return $this->routes;
+    }
+
+    public function dispatch(string $uri, string $method): void {
+        $uri = parse_url($uri, PHP_URL_PATH);
+    
+        // remove o caminho base do projeto
+        $basePath = PATH_BASE;
+
+        if (str_starts_with($uri, $basePath)) {
+            $uri = substr($uri, strlen($basePath));            
+        }
+
+        if ($uri === '' || $uri === false) {
+            $uri = '/';
+        }
+
+        //operador de coalescência nula
+        $action = $this->routes[$method][$uri] ?? null;
+                
+        //End-Point não existir
+        if (!$action) {
+            [$controller, $method] = explode('@', "controllers\Error404Controller@index");
+            $controllerInstance = new $controller();
+            call_user_func([$controllerInstance, $method]);
+            return;
+        }
+    
+        [$controller, $method] = explode('@', $action);
+        $controllerInstance = new $controller();
+        
+        call_user_func([$controllerInstance, $method]);
+    }
+
+}

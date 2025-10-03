@@ -1,0 +1,11 @@
+# Bloqueia listagem de diretórios
+Options -Indexes
+
+RewriteEngine On
+### Local ###
+RewriteBase /site_mvcframework_pjk_api/public/
+### Produção ###
+# RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
